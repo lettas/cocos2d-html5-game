@@ -224,8 +224,9 @@
             </sources>
 -->
             <sources dir="${basedir}">
+                <file name="src/cave.js"/>
                 <file name="src/resource.js"/>
-                <file name="src/myApp.js"/>
+                <file name="src/scene/title.js"/>
                 <file name="main.js"/>
             </sources>
         </jscomp>
