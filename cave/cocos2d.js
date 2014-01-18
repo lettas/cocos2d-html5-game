@@ -35,12 +35,7 @@
         frameRate:60,
         renderMode:0,       //Choose of RenderMode: 0(default), 1(Canvas only), 2(WebGL only)
         tag:'gameCanvas', //the dom element to run cocos2d on
-        //engineDir:'cocos2d/',
-        SingleEngineFile:'game.minify.js',
-        appFiles:[
-            'src/resource.js',
-            'src/myApp.js'//add your own files in order here
-        ]
+        SingleEngineFile:'js/all.minify.js',
     };
 
     if(!d.createElement('canvas').getContext){
@@ -57,28 +52,11 @@
         return;
     }
 
-
     window.addEventListener('DOMContentLoaded', function () {
         this.removeEventListener('DOMContentLoaded', arguments.callee, false);
-        //first load engine file if specified
         var s = d.createElement('script');
-        /*********Delete this section if you have packed all files into one*******/
-        if (c.SingleEngineFile && !c.engineDir) {
-            s.src = c.SingleEngineFile;
-        }
-        else if (c.engineDir && !c.SingleEngineFile) {
-            s.src = c.engineDir + 'jsloader.js';
-        }
-        else {
-            alert('You must specify either the single engine file OR the engine directory in "cocos2d.js"');
-        }
-        /*********Delete this section if you have packed all files into one*******/
-
-            //s.src = 'myTemplate.js'; //IMPORTANT: Un-comment this line if you have packed all files into one
-
+        s.src = c.SingleEngineFile;
         d.body.appendChild(s);
         document.ccConfig = c;
-        s.id = 'cocos2d-html5';
-        //else if single file specified, load singlefile
     });
 })();

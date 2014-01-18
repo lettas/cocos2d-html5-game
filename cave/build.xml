@@ -1,14 +1,28 @@
 <?xml version="1.0"?>
-<project name="Javascript compress project" basedir="." default="compile">
+<project name="Javascript compress project" basedir="." default="compile-all">
 
     <taskdef name="jscomp" classname="com.google.javascript.jscomp.ant.CompileTask"
              classpath="${basedir}/../tools/compiler/compiler.jar"/>
 
-    <target name="compile">
-        <jscomp compilationLevel="simple" warning="quiet"
-                debug="false" output="game.minify.js">
-                <!--sourceMapOutputFile="sourcemap"
-                sourceMapFormat="V3">-->
+    <target name="compile-all" depends="compile-cocos2d,compile-game">
+        <concat destfile="js/all.minify.js">
+            <filelist dir="js" files="cocos2d.minify.js,game.minify.js" />
+        </concat>
+    </target>
+
+    <target name="compile-game">
+        <jscomp compilationLevel="simple" warning="quiet" debug="false" output="js/game.minify.js">
+            <sources dir="${basedir}">
+                <file name="src/cave.js"/>
+                <file name="src/resource.js"/>
+                <file name="src/scene/title.js"/>
+                <file name="main.js"/>
+            </sources>
+        </jscomp>
+    </target>
+
+    <target name="compile-cocos2d">
+        <jscomp compilationLevel="simple" warning="quiet" debug="false" output="js/cocos2d.minify.js">
             <externs dir="${basedir}/../cocos2d">
                 <file name="core/cocos2d_externs.js"/>
             </externs>
@@ -223,12 +237,6 @@
                 <file name="CocoStudio/Reader/SceneReader.js"/>
             </sources>
 -->
-            <sources dir="${basedir}">
-                <file name="src/cave.js"/>
-                <file name="src/resource.js"/>
-                <file name="src/scene/title.js"/>
-                <file name="main.js"/>
-            </sources>
         </jscomp>
     </target>
 </project>
