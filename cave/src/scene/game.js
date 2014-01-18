@@ -10,7 +10,6 @@ cave.scene.Game = cc.Scene.extend({
 cave.scene.Game.BaseLayer = cc.Layer.extend({
     init: function() {
         this._super();
-        this.setMouseEnabled(true);
         this.setTouchEnabled(true);
 
         var size = cc.Director.getInstance().getWinSize();
@@ -18,22 +17,18 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.player = cave.scene.Game.Player.create();
         this.player.setPosition(cc.p(size.width / 4, size.height / 2));
         this.addChild(this.player, 10);
+    },
+
+    onEnterTransitionDidFinish: function() {
         this.player.scheduleUpdate();
     },
 
-    onMouseDown: function(event) {
+    onTouchesBegan: function(touch, event) {
         this.player.goingUp();
+        return true;
     },
 
-    onMouseUp: function(event) {
-        this.player.goingDown();
-    },
-
-    onTouchBegan: function(touch, event) {
-        this.player.goingUp();
-    },
-
-    onTouchEnded: function(touch, event) {
+    onTouchesEnded: function(touch, event) {
         this.player.goingDown();
     }
 });
