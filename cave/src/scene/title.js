@@ -1,5 +1,5 @@
 cave.scene.Title = cc.Scene.extend({
-    onEnter:function () {
+    onEnter: function () {
         this._super();
         var layer = new cave.scene.Title.BaseLayer();
         this.addChild(layer);
@@ -9,6 +9,7 @@ cave.scene.Title = cc.Scene.extend({
 
 cave.scene.Title.BaseLayer = cc.Layer.extend({
     init: function() {
+        this._super();
         var size = cc.Director.getInstance().getWinSize();
         this.titleLabel = cc.LabelTTF.create("CAVE", "Impact", 38);
         this.titleLabel.setPosition(cc.p(size.width / 2, size.height - 40));
