@@ -10,13 +10,14 @@ cave.scene.Game = cc.Scene.extend({
 cave.scene.Game.BaseLayer = cc.Layer.extend({
     init: function() {
         this._super();
-        this.setTouchEnabled(true);
 
         var size = cc.Director.getInstance().getWinSize();
 
         this.player = cave.scene.Game.Player.create();
         this.player.setPosition(cc.p(size.width / 4, size.height / 2));
         this.addChild(this.player, 10);
+
+        this.setTouchEnabled(true);
     },
 
     onEnterTransitionDidFinish: function() {
