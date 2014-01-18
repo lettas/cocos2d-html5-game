@@ -18,18 +18,19 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.addChild(this.player, 10);
 
         this.setTouchEnabled(true);
+        this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
     },
 
     onEnterTransitionDidFinish: function() {
         this.player.scheduleUpdate();
     },
 
-    onTouchesBegan: function(touch, event) {
+    onTouchBegan: function(touch, event) {
         this.player.goingUp();
         return true;
     },
 
-    onTouchesEnded: function(touch, event) {
+    onTouchEnded: function(touch, event) {
         this.player.goingDown();
     }
 });
