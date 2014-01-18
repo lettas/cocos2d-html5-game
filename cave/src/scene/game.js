@@ -37,7 +37,7 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
 cave.scene.Game.Player = cc.Node.extend({
     G: 0.2,
-    MAX_SPEED: 6.0,
+    MAX_SPEED: 7.0,
 
     init: function() {
         this._super();
@@ -46,7 +46,7 @@ cave.scene.Game.Player = cc.Node.extend({
         this.dot.drawDot(cc.p(0, 0), 12, cc.c4FFromccc3B(cc.c3(0x00, 0xFF, 0xCC)));
         this.addChild(this.dot);
 
-        this.speed = cc.p(0, 0);
+        this.speed = cc.p(0, 5);
         this.goingDown();
         return true;
     },
