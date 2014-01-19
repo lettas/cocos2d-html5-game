@@ -90,6 +90,9 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
         var size = cc.Director.getInstance().getWinSize();
 
+        var overlay = cc.LayerColor.create(cc.c4(0, 0, 0, 127), size.width, size.height);
+        this.addChild(overlay);
+
         var gameOverFontSize = 72;
         var gameOverLabel = cc.LabelTTF.create("GAME OVER", cave.config.LABEL_FONT, gameOverFontSize);
         gameOverLabel.setPosition(size.width / 2, size.height / 2);
