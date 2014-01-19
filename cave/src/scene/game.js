@@ -23,6 +23,13 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.tail = cave.scene.Game.Player.ResidualImage.create(this.player, this.RESIDUAL_IMAGE_DURATION);
         this.addChild(this.tail);
 
+        this.obstacle = new cave.scene.Game.Obstacle();
+        this.obstacle.init();
+        for (var i = 0; i <= size.width / this.obstacle.WIDTH; i++) {
+            this.obstacle.generateNext();
+        }
+        this.addChild(this.obstacle);
+
         this.setTouchEnabled(true);
         this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
     },
@@ -30,12 +37,23 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
     onEnterTransitionDidFinish: function() {
         this.player.scheduleUpdate();
         this.tail.scheduleUpdate();
+        this.obstacle.scheduleUpdate();
+        this.scheduleUpdate();
 
         var playerAction = cc.MoveBy.create(1, cc.p(this.SPEED, 0));
         this.player.runAction(cc.RepeatForever.create(playerAction));
 
         var backAction = cc.MoveBy.create(1, cc.p(-this.SPEED, 0));
         this.runAction(cc.RepeatForever.create(backAction));
+    },
+
+    update: function() {
+        var winSize = cc.Director.getInstance().getWinSize();
+        var distance = Math.abs(this.getPositionX());
+        var nextGeneratePoint = this.obstacle.getMostDistantWallX() - winSize.width;
+        if (distance > nextGeneratePoint) {
+            this.obstacle.generateNext();
+        }
     },
 
     onTouchBegan: function(touch, event) {
@@ -150,4 +168,75 @@ cave.scene.Game.Player.ResidualImage.create = function(player, dulation) {
     var instance = new cave.scene.Game.Player.ResidualImage();
     return instance && instance.initWithPlayer(player, dulation) ? instance : null;
 }
+
+cave.scene.Game.Obstacle = cc.Node.extend({
+    WIDTH: 30,
+    DEFAULT_COLOR: cc.c4(0xFF, 0xCC, 0x00, 0xFF),
+
+    init: function() {
+        this.upperWalls = []; // {x,y,width,height}
+        this.lowerWalls = []; // {x,y,width,height}
+        this.floatingWalls = []; // {x,y,width,height}
+        this.count = 0;
+        this.effect = cc.DrawNode.create();
+        this.addChild(this.effect);
+
+        var winSize = cc.Director.getInstance().getWinSize();
+        this.maxWallsCount = (winSize.width / this.WIDTH) * 2;
+    },
+
+    generateNext: function() {
+        var winSize = cc.Director.getInstance().getWinSize();
+        var w = this.WIDTH;
+        var x = this.WIDTH * this.count;
+
+        var h1 = 50 + (this.count / 3) + Math.random() * 100; // TODO いい感じに作る
+        this.upperWalls.push([x, winSize.height - h1, w, h1]);
+        if (this.upperWalls.length >= this.maxWallsCount) {
+            this.upperWalls.shift();
+        }
+
+        var h2 = 50 + (this.count / 3) + Math.random() * 100; // TODO いい感じに作る
+        this.lowerWalls.push([x, 0, w, h2]);
+        if (this.lowerWalls.length >= this.maxWallsCount) {
+            this.lowerWalls.shift();
+        }
+
+        this.count++;
+        this.generated = true;
+    },
+
+    update: function() {
+        if (this.generated) {
+            this.effect.clear()
+            this._redraw();
+            this.generated = false;
+        }
+    },
+
+    getMostDistantWallX: function() {
+        return this.count * this.WIDTH;
+    },
+
+    _redraw: function() {
+        var color = cc.c4FFromccc4B(this.DEFAULT_COLOR);
+        this.upperWalls.forEach(function(wall) {
+            var vertex = this._convertToVertex(wall[0], wall[1], wall[2], wall[3]);
+            this.effect.drawPoly(vertex, color, 0, color);
+        }, this);
+        this.lowerWalls.forEach(function(wall) {
+            var vertex = this._convertToVertex(wall[0], wall[1], wall[2], wall[3]);
+            this.effect.drawPoly(vertex, color, 0, color);
+        }, this);
+    },
+
+    _convertToVertex: function(x, y, w, h) {
+        return [
+            cc.p(x, y),
+            cc.p(x, y + h),
+            cc.p(x + w, y + h),
+            cc.p(x + w, y)
+        ];
+    }
+});
 
