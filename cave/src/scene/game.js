@@ -170,19 +170,26 @@ cave.scene.Game.Player.ResidualImage.create = function(player, dulation) {
 }
 
 cave.scene.Game.Obstacle = cc.Node.extend({
-    WIDTH: 30,
     DEFAULT_COLOR: cc.c4(0xFF, 0xCC, 0x00, 0xFF),
 
+    // 洞窟パラメータ
+    WIDTH:     30, // 壁の幅
+    BUFFER:    30, // 最低でも開ける隙間の大きさ
+    AMPLITUDE: 70, // 壁の振れ幅
+
     init: function() {
-        this.upperWalls = []; // {x,y,width,height}
-        this.lowerWalls = []; // {x,y,width,height}
-        this.floatingWalls = []; // {x,y,width,height}
+        this.upperWalls = []; // {cc.rect}
+        this.lowerWalls = []; // {cc.rect}
+        this.floatingWalls = []; // {cc.rect}
         this.count = 0;
+        this.floatingWallFrequency = 0;
+
         this.effect = cc.DrawNode.create();
         this.addChild(this.effect);
 
         var winSize = cc.Director.getInstance().getWinSize();
         this.maxWallsCount = (winSize.width / this.WIDTH) * 2;
+        this.maxWallHeight = (winSize.height - this.BUFFER) * 2 / 5;
     },
 
     generateNext: function() {
@@ -190,20 +197,65 @@ cave.scene.Game.Obstacle = cc.Node.extend({
         var w = this.WIDTH;
         var x = this.WIDTH * this.count;
 
-        var h1 = 50 + (this.count / 3) + Math.random() * 100; // TODO いい感じに作る
-        this.upperWalls.push([x, winSize.height - h1, w, h1]);
+        var upperWall = this._generateUpperWall();
+        this.upperWalls.push(upperWall);
         if (this.upperWalls.length >= this.maxWallsCount) {
             this.upperWalls.shift();
         }
 
-        var h2 = 50 + (this.count / 3) + Math.random() * 100; // TODO いい感じに作る
-        this.lowerWalls.push([x, 0, w, h2]);
+        var lowerWall = this._generateLowerWall();
+        this.lowerWalls.push(lowerWall);
         if (this.lowerWalls.length >= this.maxWallsCount) {
             this.lowerWalls.shift();
         }
 
+        var lot = Math.random() * 1000;
+        if (lot < this.floatingWallFrequency) {
+            var floatingWall = this._generateFloatingWall();
+            this.floatingWalls.push(floatingWall);
+            if (this.floatingWalls.length >= this.maxWallsCount) {
+                this.floatingWalls.shift();
+            }
+            this.floatingWallFrequency = 0;
+        }
+        else {
+            this.floatingWallFrequency += this.count;
+            this.floatingWallFrequency = Math.min(this.floatingWallFrequency, 900);
+        }
+
         this.count++;
         this.generated = true;
+    },
+
+    _randomWallHeight: function(minHeight) {
+        minHeight = Math.min(minHeight, this.maxWallHeight - this.AMPLITUDE);
+        return Math.floor(minHeight + Math.random() * this.AMPLITUDE);
+    },
+
+    _generateUpperWall: function() {
+        var winSize = cc.Director.getInstance().getWinSize();
+        var w = this.WIDTH;
+        var h = this._randomWallHeight(50 + this.count);
+        var x = w * this.count;
+        var y = winSize.height - h;
+        return cc.rect(x, y, w, h);
+    },
+
+    _generateLowerWall: function() {
+        var w = this.WIDTH;
+        var h = this._randomWallHeight(50 + this.count);
+        var x = w * this.count;
+        var y = 0;
+        return cc.rect(x, y, w, h);
+    },
+
+    _generateFloatingWall: function() {
+        var winSize = cc.Director.getInstance().getWinSize();
+        var w = this.WIDTH;
+        var h = this._randomWallHeight(75);
+        var x = w * this.count;
+        var y = Math.floor(winSize.height / 3 + Math.random() * this.maxWallHeight);
+        return cc.rect(x, y, w, h);
     },
 
     update: function() {
@@ -220,22 +272,22 @@ cave.scene.Game.Obstacle = cc.Node.extend({
 
     _redraw: function() {
         var color = cc.c4FFromccc4B(this.DEFAULT_COLOR);
-        this.upperWalls.forEach(function(wall) {
-            var vertex = this._convertToVertex(wall[0], wall[1], wall[2], wall[3]);
-            this.effect.drawPoly(vertex, color, 0, color);
-        }, this);
-        this.lowerWalls.forEach(function(wall) {
-            var vertex = this._convertToVertex(wall[0], wall[1], wall[2], wall[3]);
+        this._allWalls().forEach(function(wall) {
+            var vertex = this._convertToVertex(wall);
             this.effect.drawPoly(vertex, color, 0, color);
         }, this);
     },
 
-    _convertToVertex: function(x, y, w, h) {
+    _allWalls: function() {
+        return [].concat(this.upperWalls, this.lowerWalls, this.floatingWalls);
+    },
+
+    _convertToVertex: function(rect) {
         return [
-            cc.p(x, y),
-            cc.p(x, y + h),
-            cc.p(x + w, y + h),
-            cc.p(x + w, y)
+            cc.p(rect.x, rect.y),
+            cc.p(rect.x, rect.y + rect.height),
+            cc.p(rect.x + rect.width, rect.y + rect.height),
+            cc.p(rect.x + rect.width, rect.y)
         ];
     }
 });
