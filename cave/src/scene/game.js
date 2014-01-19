@@ -123,7 +123,10 @@ cave.scene.Game.Player.ResidualImage = cc.Node.extend({
         if (this.points.length > this.duration) {
             this.points.shift();
         }
+        this._redraw();
+    },
 
+    _redraw: function() {
         var radius = this.player.size * 0.6;
         var c = this.player.color;
         var color = cc.c4(c.r, c.g, c.b, c.a);
