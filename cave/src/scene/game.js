@@ -54,6 +54,21 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         if (distance > nextGeneratePoint) {
             this.obstacle.generateNext();
         }
+
+        var isCollided = this.obstacle.allWalls().some(function(wall) {
+            return this.player.collisionWith(wall);
+        }, this);
+        if (isCollided) {
+            this.playGameOverScene();
+        }
+    },
+
+    playGameOverScene: function() {
+        this.stopAllActions();
+        this.player.stopAllActions();
+
+        this.unscheduleUpdate();
+        this.player.unscheduleUpdate();
     },
 
     onTouchBegan: function(touch, event) {
@@ -117,6 +132,18 @@ cave.scene.Game.Player = cc.Node.extend({
             }
             return n;
         });
+    },
+
+    collisionWith: function(rect) {
+        var playerPosition = this.getPosition();
+
+        // rectからplayerに一番近い頂点を見つける
+        var p1 = cc.p(rect.x, rect.y);
+        var p2 = cc.p(rect.x + rect.width, rect.y + rect.height);
+        var p = cc.pClamp(playerPosition, p1, p2);
+
+        // playerとの距離がplayerのsize以下ならぶつかってます
+        return cc.pDistance(playerPosition, p) < this.size;
     }
 });
 
@@ -272,13 +299,13 @@ cave.scene.Game.Obstacle = cc.Node.extend({
 
     _redraw: function() {
         var color = cc.c4FFromccc4B(this.DEFAULT_COLOR);
-        this._allWalls().forEach(function(wall) {
+        this.allWalls().forEach(function(wall) {
             var vertex = this._convertToVertex(wall);
             this.effect.drawPoly(vertex, color, 0, color);
         }, this);
     },
 
-    _allWalls: function() {
+    allWalls: function() {
         return [].concat(this.upperWalls, this.lowerWalls, this.floatingWalls);
     },
 
