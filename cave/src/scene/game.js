@@ -8,17 +8,19 @@ cave.scene.Game = cc.Scene.extend({
 });
 
 cave.scene.Game.BaseLayer = cc.Layer.extend({
+    SPEED: 65,
+    RESIDUAL_IMAGE_DURATION: 100,
+
     init: function() {
         this._super();
 
         var size = cc.Director.getInstance().getWinSize();
 
         this.player = cave.scene.Game.Player.create();
-        this.player.setPosition(cc.p(size.width / 4, size.height / 2));
-        this.addChild(this.player, 10);
+        this.player.setPosition(cc.p(size.width / 3, size.height / 2));
+        this.addChild(this.player);
 
-        this.tail = new cave.scene.Game.Player.ResidualImage();
-        this.tail.initWithPlayer(this.player, 100);
+        this.tail = cave.scene.Game.Player.ResidualImage.create(this.player, this.RESIDUAL_IMAGE_DURATION);
         this.addChild(this.tail);
 
         this.setTouchEnabled(true);
@@ -29,10 +31,10 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.player.scheduleUpdate();
         this.tail.scheduleUpdate();
 
-        var playerAction = cc.MoveBy.create(1, cc.p(60, 0));
+        var playerAction = cc.MoveBy.create(1, cc.p(this.SPEED, 0));
         this.player.runAction(cc.RepeatForever.create(playerAction));
 
-        var backAction = cc.MoveBy.create(1, cc.p(-60, 0));
+        var backAction = cc.MoveBy.create(1, cc.p(-this.SPEED, 0));
         this.runAction(cc.RepeatForever.create(backAction));
     },
 
@@ -48,18 +50,21 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
 cave.scene.Game.Player = cc.Node.extend({
     G: 0.2,
-    MAX_SPEED: 7.0,
+    INITIAL_SPEED: 5.0,
+    MAX_SPEED: 7.0, // px / frame
+    DOT_SIZE: 12,
+    DEFAULT_COLOR: cc.c4(0x00, 0xFF, 0xCC, 0xFF),
 
     init: function() {
         this._super();
 
-        this.color = cc.c4(0x00, 0xFF, 0xCC, 0xFF);
-        this.size = 12;
+        this.color = this.DEFAULT_COLOR;
+        this.size = this.DOT_SIZE;
         this.dot = cc.DrawNode.create();
         this.dot.drawDot(cc.p(0, 0), this.size, cc.c4FFromccc3B(this.color));
         this.addChild(this.dot);
 
-        this.speed = cc.p(0, 5);
+        this.speed = cc.p(0, this.INITIAL_SPEED);
         this.goingDown();
         return true;
     },
@@ -109,6 +114,7 @@ cave.scene.Game.Player.ResidualImage = cc.Node.extend({
         this.points = [];
         this.effect = cc.DrawNode.create();
         this.addChild(this.effect);
+        return true;
     },
 
     update: function() {
@@ -118,12 +124,13 @@ cave.scene.Game.Player.ResidualImage = cc.Node.extend({
             this.points.shift();
         }
 
+        var radius = this.player.size * 0.6;
+        var c = this.player.color;
+        var color = cc.c4(c.r, c.g, c.b, c.a);
+        var alphaAttenuation = color.a / this.duration;
+
         this.effect.clear();
         if (this.points.length >= 2) {
-            var c = this.player.color;
-            var color = cc.c4(c.r, c.g, c.b, c.a);
-            var alphaAttenuation = color.a * 1.0 / this.duration;
-            var radius = this.player.size * 0.6;
             for (var i = this.points.length - 1; i > 0; i--) {
                 var from = this.points[i - 1];
                 var to = this.points[i];
@@ -135,4 +142,9 @@ cave.scene.Game.Player.ResidualImage = cc.Node.extend({
         }
     }
 });
+
+cave.scene.Game.Player.ResidualImage.create = function(player, dulation) {
+    var instance = new cave.scene.Game.Player.ResidualImage();
+    return instance && instance.initWithPlayer(player, dulation) ? instance : null;
+}
 
