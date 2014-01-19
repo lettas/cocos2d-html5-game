@@ -118,7 +118,7 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
             this.onTouchEnded = function() {
                 cc.Director.getInstance().replaceScene(new cave.scene.Game());
             };
-        }.bind(this), 500);
+        }.bind(this), 1200);
     },
 
     _updateHighScore: function() {
