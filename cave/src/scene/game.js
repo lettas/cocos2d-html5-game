@@ -38,7 +38,7 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
         var scoreLabelFontSize = 72;
         var scoreLabelSize = cc.size(size.width - 20, scoreLabelFontSize);
-        this.scoreLabel = cc.LabelTTF.create("0", "Helvetica-Bold", scoreLabelFontSize, scoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
+        this.scoreLabel = cc.LabelTTF.create("0", cave.config.LABEL_FONT, scoreLabelFontSize, scoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
         this.scoreLabel.setPosition(size.width / 2, size.height - scoreLabelSize.height / 2);
         this.hudLayer.addChild(this.scoreLabel);
 
@@ -80,6 +80,24 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
     playGameOverScene: function() {
         this._stopAnimations();
+
+        var size = cc.Director.getInstance().getWinSize();
+
+        var gameOverFontSize = 72;
+        var gameOverLabelSize = cc.size(size.width, gameOverFontSize);
+        var gameOverLabel = cc.LabelTTF.create("GAME OVER", cave.config.LABEL_FONT, gameOverFontSize, gameOverLabelSize, cc.TEXT_ALIGNMENT_CENTER);
+        gameOverLabel.setPosition(size.width / 2, size.height / 2);
+        this.addChild(gameOverLabel);
+
+        var retryFontSize = 36;
+        var retryLabelSize = cc.size(size.width, retryFontSize);
+        var retryLabel = cc.LabelTTF.create("tap to retry", cave.config.LABEL_FONT, retryFontSize, retryLabelSize, cc.TEXT_ALIGNMENT_CENTER);
+        retryLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize)));
+        this.addChild(retryLabel);
+
+        this.onTouchEnded = function() {
+            cc.Director.getInstance().replaceScene(new cave.scene.Game());
+        };
     },
 
     getScore: function() {
