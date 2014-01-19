@@ -95,11 +95,6 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         gameOverLabel.setPosition(size.width / 2, size.height / 2);
         this.addChild(gameOverLabel);
 
-        var retryFontSize = 36;
-        var retryLabel = cc.LabelTTF.create("tap to retry", cave.config.LABEL_FONT, retryFontSize);
-        retryLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize)));
-        this.addChild(retryLabel);
-
         var oldHighScore = this.getHighScore();
         var updated = this._updateHighScore();
         if (updated) {
@@ -107,13 +102,20 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
             var highScoreFontSize = 24;
             var highScoreText = "New Record!: " + oldHighScore + " -> " + newHighScore;
             var highScoreLabel = cc.LabelTTF.create(highScoreText, cave.config.LABEL_FONT, highScoreFontSize);
-            highScoreLabel.setPosition(cc.pSub(retryLabel.getPosition(), cc.p(0, retryFontSize * 2)));
+            highScoreLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize)));
             this.addChild(highScoreLabel);
         }
 
-        this.onTouchEnded = function() {
-            cc.Director.getInstance().replaceScene(new cave.scene.Game());
-        };
+        setTimeout(function() {
+            var retryFontSize = 36;
+            var retryLabel = cc.LabelTTF.create("tap to retry", cave.config.LABEL_FONT, retryFontSize);
+            retryLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize * 2)));
+
+            this.addChild(retryLabel);
+            this.onTouchEnded = function() {
+                cc.Director.getInstance().replaceScene(new cave.scene.Game());
+            };
+        }.bind(this), 500);
     },
 
     _updateHighScore: function() {
