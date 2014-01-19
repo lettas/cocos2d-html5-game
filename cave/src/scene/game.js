@@ -36,9 +36,9 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.hudLayer = cc.Layer.create();
         this.addChild(this.hudLayer, 10);
 
-        var scoreLabelFontSize = 38;
+        var scoreLabelFontSize = 72;
         var scoreLabelSize = cc.size(size.width - 20, scoreLabelFontSize);
-        this.scoreLabel = cc.LabelTTF.create("0", "Impact", scoreLabelFontSize, scoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
+        this.scoreLabel = cc.LabelTTF.create("0", "Helvetica-Bold", scoreLabelFontSize, scoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
         this.scoreLabel.setPosition(size.width / 2, size.height - scoreLabelSize.height / 2);
         this.hudLayer.addChild(this.scoreLabel);
 
