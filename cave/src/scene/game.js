@@ -93,13 +93,42 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         retryLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize)));
         this.addChild(retryLabel);
 
+        var oldHighScore = this.getHighScore();
+        var updated = this._updateHighScore();
+        if (updated) {
+            var newHighScore = this.getHighScore();
+            var highScoreFontSize = 24;
+            var highScoreText = "New Record!: " + oldHighScore + " -> " + newHighScore;
+            var highScoreLabel = cc.LabelTTF.create(highScoreText, cave.config.LABEL_FONT, highScoreFontSize);
+            highScoreLabel.setPosition(cc.pSub(retryLabel.getPosition(), cc.p(0, retryFontSize * 2)));
+            this.addChild(highScoreLabel);
+        }
+
         this.onTouchEnded = function() {
             cc.Director.getInstance().replaceScene(new cave.scene.Game());
         };
     },
 
+    _updateHighScore: function() {
+        var highScore = this.getHighScore();
+        var currentScore = this.getScore();
+        if (highScore < currentScore) {
+            this.setHighScore(currentScore);
+            return true;
+        }
+        return false;
+    },
+
     getScore: function() {
         return Math.floor(Math.abs(this.gameLayer.getPositionX()));
+    },
+
+    getHighScore: function() {
+        return localStorage.getItem('HighScore') - 0;
+    },
+
+    setHighScore: function(score) {
+        return localStorage.setItem('HighScore', score);
     },
 
     _stopAnimations: function() {
