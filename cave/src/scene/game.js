@@ -69,10 +69,11 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
         this.scoreLabel.setString(this.getScore());
 
-        var isCollided = this.obstacle.allWalls().some(function(wall) {
-            return this.player.collisionWith(wall);
-        }, this);
+//        var isCollided = this.obstacle.allWalls().some(function(wall) {
+//            return this.player.collisionWith(wall);
+//        }, this);
 
+        var isCollided = false;
         if (isCollided) {
             this.playGameOverScene();
         }
