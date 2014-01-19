@@ -84,14 +84,12 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         var size = cc.Director.getInstance().getWinSize();
 
         var gameOverFontSize = 72;
-        var gameOverLabelSize = cc.size(size.width, gameOverFontSize);
-        var gameOverLabel = cc.LabelTTF.create("GAME OVER", cave.config.LABEL_FONT, gameOverFontSize, gameOverLabelSize, cc.TEXT_ALIGNMENT_CENTER);
+        var gameOverLabel = cc.LabelTTF.create("GAME OVER", cave.config.LABEL_FONT, gameOverFontSize);
         gameOverLabel.setPosition(size.width / 2, size.height / 2);
         this.addChild(gameOverLabel);
 
         var retryFontSize = 36;
-        var retryLabelSize = cc.size(size.width, retryFontSize);
-        var retryLabel = cc.LabelTTF.create("tap to retry", cave.config.LABEL_FONT, retryFontSize, retryLabelSize, cc.TEXT_ALIGNMENT_CENTER);
+        var retryLabel = cc.LabelTTF.create("tap to retry", cave.config.LABEL_FONT, retryFontSize);
         retryLabel.setPosition(cc.pSub(gameOverLabel.getPosition(), cc.p(0, gameOverFontSize)));
         this.addChild(retryLabel);
 
