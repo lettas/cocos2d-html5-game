@@ -17,30 +17,23 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.player.setPosition(cc.p(size.width / 4, size.height / 2));
         this.addChild(this.player, 10);
 
-        this.backgroundLayer = cc.Layer.create();
-        this.addChild(this.backgroundLayer);
-
-        this.tail = cc.MotionStreak.create(2.0, 1, 18, this.player.color, s_Dot);
-        this.tail.setPosition(this.player.getPosition());
-        this.backgroundLayer.addChild(this.tail);
+        this.tail = new cave.scene.Game.Player.ResidualImage();
+        this.tail.initWithPlayer(this.player, 100);
+        this.addChild(this.tail);
 
         this.setTouchEnabled(true);
         this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
-
     },
 
     onEnterTransitionDidFinish: function() {
-        var size = cc.Director.getInstance().getWinSize();
         this.player.scheduleUpdate();
-        this.scheduleUpdate();
+        this.tail.scheduleUpdate();
 
-        var moveAction = cc.MoveBy.create(1, cc.p(-60, 0));
-        this.backgroundLayer.runAction(cc.RepeatForever.create(moveAction));
-    },
+        var playerAction = cc.MoveBy.create(1, cc.p(60, 0));
+        this.player.runAction(cc.RepeatForever.create(playerAction));
 
-    update: function() {
-        var playerTailPosition = cc.pSub(this.player.getPosition(), this.backgroundLayer.getPosition());
-        this.tail.setPosition(playerTailPosition);
+        var backAction = cc.MoveBy.create(1, cc.p(-60, 0));
+        this.runAction(cc.RepeatForever.create(backAction));
     },
 
     onTouchBegan: function(touch, event) {
@@ -61,8 +54,9 @@ cave.scene.Game.Player = cc.Node.extend({
         this._super();
 
         this.color = cc.c4(0x00, 0xFF, 0xCC, 0xFF);
+        this.size = 12;
         this.dot = cc.DrawNode.create();
-        this.dot.drawDot(cc.p(0, 0), 12, cc.c4FFromccc3B(this.color));
+        this.dot.drawDot(cc.p(0, 0), this.size, cc.c4FFromccc3B(this.color));
         this.addChild(this.dot);
 
         this.speed = cc.p(0, 5);
@@ -107,4 +101,38 @@ cave.scene.Game.Player.create = function() {
     var player = new cave.scene.Game.Player();
     return player && player.init() ? player : null;
 }
+
+cave.scene.Game.Player.ResidualImage = cc.Node.extend({
+    initWithPlayer: function(player, duration) {
+        this.player = player;
+        this.duration = duration;
+        this.points = [];
+        this.effect = cc.DrawNode.create();
+        this.addChild(this.effect);
+    },
+
+    update: function() {
+        var p = this.player.getPosition();
+        this.points.push(cc.p(p.x, p.y));
+        if (this.points.length > this.duration) {
+            this.points.shift();
+        }
+
+        this.effect.clear();
+        if (this.points.length >= 2) {
+            var c = this.player.color;
+            var color = cc.c4(c.r, c.g, c.b, c.a);
+            var alphaAttenuation = color.a * 1.0 / this.duration;
+            var radius = this.player.size * 0.6;
+            for (var i = this.points.length - 1; i > 0; i--) {
+                var from = this.points[i - 1];
+                var to = this.points[i];
+                this.effect.drawSegment(from, to, radius, cc.c4FFromccc4B(color));
+                if (color.a >= alphaAttenuation) {
+                    color.a -= alphaAttenuation;
+                }
+            }
+        }
+    }
+});
 
