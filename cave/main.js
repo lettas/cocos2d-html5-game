@@ -40,8 +40,8 @@ var cocos2dApp = cc.Application.extend({
 
         cc.EGLView.getInstance()._adjustSizeToBrowser();
         var screenSize = cc.EGLView.getInstance().getFrameSize();
-        var resourceSize = cc.size(640, 850);
-        var designSize = cc.size(640, 850);
+        var resourceSize = cc.size(320, 400);
+        var designSize = cc.size(320, 400);
 
         var searchPaths = [];
         var resDirOrders = [];

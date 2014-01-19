@@ -104,10 +104,10 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 });
 
 cave.scene.Game.Player = cc.Node.extend({
-    G: 0.2,
-    INITIAL_SPEED: 5.0,
-    MAX_SPEED: 7.0, // px / frame
-    DOT_SIZE: 12,
+    G: 0.1,
+    INITIAL_SPEED: 2.5,
+    MAX_SPEED: 3.5, // px / frame
+    DOT_SIZE: 6,
     DEFAULT_COLOR: cc.c4(0x00, 0xFF, 0xCC, 0xFF),
 
     init: function() {
@@ -222,9 +222,9 @@ cave.scene.Game.Obstacle = cc.Node.extend({
     DEFAULT_COLOR: cc.c4(0xFF, 0xCC, 0x00, 0xFF),
 
     // 洞窟パラメータ
-    WIDTH:     30, // 壁の幅
-    BUFFER:    30, // 最低でも開ける隙間の大きさ
-    AMPLITUDE: 70, // 壁の振れ幅
+    WIDTH:     20, // 壁の幅
+    BUFFER:    15, // 最低でも開ける隙間の大きさ
+    AMPLITUDE: 35, // 壁の振れ幅
 
     init: function() {
         this.upperWalls = []; // {cc.rect}
@@ -237,7 +237,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
         this.addChild(this.effect);
 
         var winSize = cc.Director.getInstance().getWinSize();
-        this.maxWallsCount = (winSize.width / this.WIDTH) * 2;
+        this.maxWallsCount = (winSize.width / this.WIDTH) + 2;
         this.maxWallHeight = (winSize.height - this.BUFFER) * 2 / 5;
     },
 
@@ -284,7 +284,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
     _generateUpperWall: function() {
         var winSize = cc.Director.getInstance().getWinSize();
         var w = Math.floor(this.WIDTH);
-        var h = Math.floor(this._randomWallHeight(50 + this.count));
+        var h = Math.floor(this._randomWallHeight(25 + this.count));
         var x = Math.floor(w * this.count);
         var y = Math.floor(winSize.height - h);
         return cc.rect(x, y, w, h);
@@ -292,7 +292,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
 
     _generateLowerWall: function() {
         var w = Math.floor(this.WIDTH);
-        var h = Math.floor(this._randomWallHeight(50 + this.count));
+        var h = Math.floor(this._randomWallHeight(25 + this.count));
         var x = Math.floor(w * this.count);
         var y = Math.floor(0);
         return cc.rect(x, y, w, h);
@@ -301,7 +301,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
     _generateFloatingWall: function() {
         var winSize = cc.Director.getInstance().getWinSize();
         var w = Math.floor(this.WIDTH);
-        var h = Math.floor(this._randomWallHeight(75));
+        var h = Math.floor(this._randomWallHeight(35));
         var x = Math.floor(w * this.count);
         var y = Math.floor(winSize.height / 3 + Math.random() * this.maxWallHeight);
         return cc.rect(x, y, w, h);
