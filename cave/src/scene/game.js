@@ -16,19 +16,31 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
 
         var size = cc.Director.getInstance().getWinSize();
 
+        this.gameLayer = cc.Layer.create();
+        this.addChild(this.gameLayer, 0);
+
         this.player = cave.scene.Game.Player.create();
         this.player.setPosition(cc.p(size.width / 3, size.height / 2));
-        this.addChild(this.player);
+        this.gameLayer.addChild(this.player);
 
         this.tail = cave.scene.Game.Player.ResidualImage.create(this.player, this.RESIDUAL_IMAGE_DURATION);
-        this.addChild(this.tail);
+        this.gameLayer.addChild(this.tail);
 
         this.obstacle = new cave.scene.Game.Obstacle();
         this.obstacle.init();
         for (var i = 0; i <= size.width / this.obstacle.WIDTH; i++) {
             this.obstacle.generateNext();
         }
-        this.addChild(this.obstacle);
+        this.gameLayer.addChild(this.obstacle);
+
+        this.hudLayer = cc.Layer.create();
+        this.addChild(this.hudLayer, 10);
+
+        var scoreLabelFontSize = 38;
+        var scoreLabelSize = cc.size(size.width - 20, scoreLabelFontSize);
+        this.scoreLabel = cc.LabelTTF.create("0", "Impact", scoreLabelFontSize, scoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
+        this.scoreLabel.setPosition(size.width / 2, size.height - scoreLabelSize.height / 2);
+        this.hudLayer.addChild(this.scoreLabel);
 
         this.setTouchEnabled(true);
         this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
@@ -44,29 +56,39 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.player.runAction(cc.RepeatForever.create(playerAction));
 
         var backAction = cc.MoveBy.create(1, cc.p(-this.SPEED, 0));
-        this.runAction(cc.RepeatForever.create(backAction));
+        this.gameLayer.runAction(cc.RepeatForever.create(backAction));
     },
 
     update: function() {
         var winSize = cc.Director.getInstance().getWinSize();
-        var distance = Math.abs(this.getPositionX());
+        var distance = Math.abs(this.gameLayer.getPositionX());
         var nextGeneratePoint = this.obstacle.getMostDistantWallX() - winSize.width;
         if (distance > nextGeneratePoint) {
             this.obstacle.generateNext();
         }
 
+        this.scoreLabel.setString(this.getScore());
+
         var isCollided = this.obstacle.allWalls().some(function(wall) {
             return this.player.collisionWith(wall);
         }, this);
+
         if (isCollided) {
             this.playGameOverScene();
         }
     },
 
     playGameOverScene: function() {
-        this.stopAllActions();
-        this.player.stopAllActions();
+        this._stopAnimations();
+    },
 
+    getScore: function() {
+        return Math.floor(Math.abs(this.gameLayer.getPositionX()));
+    },
+
+    _stopAnimations: function() {
+        this.gameLayer.stopAllActions();
+        this.player.stopAllActions();
         this.unscheduleUpdate();
         this.player.unscheduleUpdate();
     },
@@ -261,26 +283,26 @@ cave.scene.Game.Obstacle = cc.Node.extend({
 
     _generateUpperWall: function() {
         var winSize = cc.Director.getInstance().getWinSize();
-        var w = this.WIDTH;
-        var h = this._randomWallHeight(50 + this.count);
-        var x = w * this.count;
-        var y = winSize.height - h;
+        var w = Math.floor(this.WIDTH);
+        var h = Math.floor(this._randomWallHeight(50 + this.count));
+        var x = Math.floor(w * this.count);
+        var y = Math.floor(winSize.height - h);
         return cc.rect(x, y, w, h);
     },
 
     _generateLowerWall: function() {
-        var w = this.WIDTH;
-        var h = this._randomWallHeight(50 + this.count);
-        var x = w * this.count;
-        var y = 0;
+        var w = Math.floor(this.WIDTH);
+        var h = Math.floor(this._randomWallHeight(50 + this.count));
+        var x = Math.floor(w * this.count);
+        var y = Math.floor(0);
         return cc.rect(x, y, w, h);
     },
 
     _generateFloatingWall: function() {
         var winSize = cc.Director.getInstance().getWinSize();
-        var w = this.WIDTH;
-        var h = this._randomWallHeight(75);
-        var x = w * this.count;
+        var w = Math.floor(this.WIDTH);
+        var h = Math.floor(this._randomWallHeight(75));
+        var x = Math.floor(w * this.count);
         var y = Math.floor(winSize.height / 3 + Math.random() * this.maxWallHeight);
         return cc.rect(x, y, w, h);
     },
