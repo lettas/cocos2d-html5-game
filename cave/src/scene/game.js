@@ -29,7 +29,7 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.obstacle = new cave.scene.Game.Obstacle();
         this.obstacle.init();
         for (var i = 0; i <= size.width / this.obstacle.WIDTH; i++) {
-            this.obstacle.generateNext();
+            this.obstacle.generateNext(false);
         }
         this.gameLayer.addChild(this.obstacle);
 
@@ -71,7 +71,7 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         var distance = Math.abs(this.gameLayer.getPositionX());
         var nextGeneratePoint = this.obstacle.getMostDistantWallX() - winSize.width;
         if (distance > nextGeneratePoint) {
-            this.obstacle.generateNext();
+            this.obstacle.generateNext(true);
         }
 
         this.scoreLabel.setString(this.getScore());
@@ -295,7 +295,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
         this.maxWallHeight = (winSize.height - this.BUFFER) * 2 / 5;
     },
 
-    generateNext: function() {
+    generateNext: function(willGenerateFloatingWall) {
         var winSize = cc.Director.getInstance().getWinSize();
         var w = this.WIDTH;
         var x = this.WIDTH * this.count;
@@ -313,7 +313,7 @@ cave.scene.Game.Obstacle = cc.Node.extend({
         }
 
         var lot = Math.random() * 1000;
-        if (lot < this.floatingWallFrequency) {
+        if (willGenerateFloatingWall && lot < this.floatingWallFrequency) {
             var floatingWall = this._generateFloatingWall();
             this.floatingWalls.push(floatingWall);
             if (this.floatingWalls.length >= this.maxWallsCount) {
