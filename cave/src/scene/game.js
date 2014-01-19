@@ -42,6 +42,13 @@ cave.scene.Game.BaseLayer = cc.Layer.extend({
         this.scoreLabel.setPosition(size.width / 2, size.height - scoreLabelSize.height / 2);
         this.hudLayer.addChild(this.scoreLabel);
 
+        var highScoreLabelFontSize = 24;
+        var highScoreLabelSize = cc.size(size.width - 20, highScoreLabelFontSize + 5);
+        var highScoreLabelText = "HighScore: " + this.getHighScore();
+        this.highScoreLabel = cc.LabelTTF.create(highScoreLabelText, cave.config.LABEL_FONT, highScoreLabelFontSize, highScoreLabelSize, cc.TEXT_ALIGNMENT_RIGHT);
+        this.highScoreLabel.setPosition(size.width / 2, highScoreLabelSize.height / 2);
+        this.hudLayer.addChild(this.highScoreLabel);
+
         this.setTouchEnabled(true);
         this.setTouchMode(cc.TOUCH_ONE_BY_ONE);
     },
